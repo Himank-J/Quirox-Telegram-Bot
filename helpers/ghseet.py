@@ -23,6 +23,10 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from google.oauth2 import service_account
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 class GoogleSheetsService:
     def __init__(self,
@@ -73,7 +77,11 @@ class GoogleSheetsService:
         ).execute()
         return result
 
-    def batch_update_cells(self, spreadsheet_id: str, sheet: str, ranges: dict) -> dict:
+    def batch_update_cells(self, spreadsheet_id: str, sheet: str, ranges) -> dict:
+        logging.info(f'spreadsheet_id {spreadsheet_id}')
+        logging.info(f'sheet {sheet}')
+        logging.info(f'Ranges {ranges}')
+        logging.info(f'Ranges type {type(ranges)}')
         data = []
         for range_str, values in ranges.items():
             full_range = f"{sheet}!{range_str}"

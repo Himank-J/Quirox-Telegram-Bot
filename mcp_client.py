@@ -17,7 +17,7 @@ load_dotenv()
 api_key = os.getenv("GEMINI_API_KEY")
 client = genai.Client(api_key=api_key)
 
-max_iterations = 5
+max_iterations = 10
 last_response = None
 iteration = 0
 iteration_response = []
@@ -110,24 +110,18 @@ async def process_query(query: str) -> str:
 
                 Respond in **exactly one line** using one of the following formats:
 
-                - FUNCTION_CALL: tool_name|param1=value1|param2=value2
-                - FINAL_ANSWER: [your final result] *(Not description, but actual final answer)
+                1. For function calls:
+                FUNCTION_CALL: function_name|param1|param2|...
+                Do not include parameter names in the function call. Only include the values.
+                
+                2. For final answers:
+                FINAL_ANSWER: [output]
 
                 For facilitating your work, you have access to the following tools:
                 {tools_description}
     
-                ✅ Examples:
-                - FUNCTION_CALL: add|a=5|b=3
-                - FUNCTION_CALL: strings_to_chars_to_int|input.string=INDIA
-                - FINAL_ANSWER: [42] → Always mention final answer to the query, not that some other description.
-                
-                ✅ Examples:
-                - User asks: "What is the relationship between Cricket and Sachin Tendulkar"
-                - FUNCTION_CALL: search_documents|query="relationship between Cricket and Sachin Tendulkar"
-                - [receives a detailed document]
-                - FINAL_ANSWER: [Sachin Tendulkar is widely regarded as the "God of Cricket" due to his exceptional skills, longevity, and impact on the sport in India. He is the leading run-scorer in both Test and ODI cricket, and the first to score 100 centuries in international cricket. His influence extends beyond his statistics, as he is seen as a symbol of passion, perseverance, and a national icon. ]
-
                 📏 IMPORTANT Rules:
+                - 🚫 Do not include any empty string, empty rows, list of empty strings when calling tools such as bulk_update_cells
                 - 🚫 Do NOT invent tools. Use only the tools listed above. Tool description has usage pattern, only use that.
                 - 📄 If the question may relate to public/factual knowledge (like companies, people, places), use the `search_on_web` tool to look for the answer.
                 - 🔁 Analyze that whether you have already got a good factual result from a tool, do NOT search again.

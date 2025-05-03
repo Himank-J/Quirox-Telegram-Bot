@@ -1,6 +1,7 @@
 import os
 import telebot, logging
 from dotenv import load_dotenv
+from helpers import get_agent_response
 
 load_dotenv()
 
@@ -19,32 +20,24 @@ def send_welcome(message):
 
 @bot.message_handler(commands=['ask-anything'])
 def sign_handler(message):
-    text = "What do you want to know?"
+    text = '''
+    I am a smart assistant. Atleast that is what I like to think.\n**How can I help you today?**
+    '''
     sent_msg = bot.send_message(message.chat.id, text, parse_mode="Markdown")
-    bot.register_next_step_handler(sent_msg, day_handler)
+    bot.register_next_step_handler(sent_msg, call_agent)
 
-def day_handler(message):
-    sign = message.text
-    text = "What day do you want to know?\nChoose one: *TODAY*, *TOMORROW*, *YESTERDAY*, or a date in format YYYY-MM-DD."
-    sent_msg = bot.send_message(
-        message.chat.id, text, parse_mode="Markdown")
-    bot.register_next_step_handler(
-        sent_msg, fetch_horoscope, sign.capitalize())
-
-def fetch_horoscope(message, sign):
-    day = message.text
-    horoscope = get_daily_horoscope(sign, day)
-    data = horoscope["data"]
-    horoscope_message = f'*Horoscope:* {data["horoscope_data"]}\n*Sign:* {sign}\n*Day:* {data["date"]}'
-    bot.send_message(message.chat.id, "Here's your horoscope!")
-    bot.send_message(message.chat.id, horoscope_message, parse_mode="Markdown")
+def call_agent(message):
+    query = message.text
+    agent_output = get_agent_response(query)
+    bot.send_message(message.chat.id, "I have something for you! Your output - ")
+    bot.send_message(message.chat.id, agent_output["response"], parse_mode="Markdown")
 
 @bot.message_handler(func=lambda msg: True)
 def echo_all(message):
     bot.reply_to(message, message.text)
 
 def main():
-    logger.info("Starting SSE server...")
+    logger.info("Starting SSE server at 8080...")
     bot.infinity_polling(
         logger_level=20
     )
